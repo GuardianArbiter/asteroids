@@ -20,10 +20,11 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-    
-        screen.fill(color = 000000)
-        player.draw(screen)
         dt = clock.tick(60) / 1000
+        player.update(dt)
+        screen.fill((000, 000, 000))
+        player.draw(screen)
+        
         pygame.display.flip()
 
     pygame.quit()

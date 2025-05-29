@@ -21,4 +21,24 @@ class Player(CircleShape):
         color = (255, 255, 255)
         pygame.draw.polygon(screen,color, shape, 2)
 
+    def rotate(self,dt):
+        self.rotation += PLAYER_TURN_SPEED * dt
+        print(dt)
+
+    def update(self, dt):
+        keys = pygame.key.get_pressed()
+        negative_dt = dt * -1
+        if keys[pygame.K_a]:
+            self.rotate(negative_dt)
+        if keys[pygame.K_d]:
+            self.rotate(dt)
+        if keys[pygame.K_w]:
+            self.move(dt)
+        if keys[pygame.K_s]:
+            self.move(negative_dt)
+            
+
+    def move(self, dt):
+        forward = pygame.Vector2(0, 1).rotate(self.rotation)
+        self.position += forward * PLAYER_SPEED * dt
 
