@@ -34,6 +34,10 @@ def main():
     player = Player(x,y)
     field = AsteroidField()
 
+    # scoring variables
+    score = 0
+    font = pygame.font.SysFont(None, 48)
+
     # game loop
     running = True
     while running:
@@ -49,20 +53,28 @@ def main():
         # collision detection
         for asteroid in asteroids:
             if asteroid.collision(player) == True:
-                print("Game over!")
+                print(f"Game over! Score {score}")
                 running = False
                 break
             for shot in list(shots):
                 if asteroid.collision(shot):
+                    if asteroid.radius > ASTEROID_MIN_RADIUS:
+                        score += 2
+                    else:
+                        score += 1
                     asteroid.split()
                     shot.kill()
                     break
 
-        # renderingd
+        # rendering
         screen.fill((000, 000, 000))
         for sprite in drawable:
             sprite.draw(screen)
         
+        # display score
+        score_text = font.render(f"Score: {score}", True, (255, 255, 255))
+        screen.blit(score_text, (10,10))
+
         pygame.display.flip()
 
     pygame.quit()
