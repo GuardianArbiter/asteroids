@@ -54,11 +54,11 @@ def main():
                 break
             for shot in list(shots):
                 if asteroid.collision(shot):
-                    asteroid.kill()
+                    asteroid.split()
                     shot.kill()
                     break
 
-        # rendering
+        # renderingd
         screen.fill((000, 000, 000))
         for sprite in drawable:
             sprite.draw(screen)
