@@ -1,4 +1,5 @@
 import pygame
+import os
 from constants import *
 from player import *
 from asteroid import *
@@ -7,6 +8,26 @@ from shots import *
 
 GAME_STATE_RUNNING = 0
 GAME_STATE_GAME_OVER = 1
+
+def load_high_score():
+    # Loads the high score from the file, or returns 0 if file not found/invalid.
+    if os.path.exists(HIGHSCORE_FILE):
+        try:
+            with open(HIGHSCORE_FILE, "r") as file:
+                return int(file.read().strip())
+        except (IOError, ValueError):
+            # Handle cases where file is corrupted or not a valid number
+            print(f"Warning: Could not read high score from {HIGHSCORE_FILE}. Resetting to 0.")
+            return 0
+    return 0 # Return 0 if the file doesn't exist
+
+def save_high_score(score):
+    # Saves the given score to the high score file.
+    try:
+        with open(HIGHSCORE_FILE, "w") as file:
+            file.write(str(score))
+    except IOError:
+        print(f"Error: Could not save high score to {HIGHSCORE_FILE}.")
 
 def main():
     pygame.init()
@@ -39,8 +60,10 @@ def main():
 
     # scoring variables
     score = 0
+    high_score = load_high_score()
     font = pygame.font.SysFont(None, 48)
     font_large = pygame.font.SysFont(None, 72)
+    font_small = pygame.font.SysFont(None, 36)
 
     # game state variable
     game_state = GAME_STATE_RUNNING
@@ -89,6 +112,9 @@ def main():
                     if event.key == pygame.K_ESCAPE:
                         running = False # quit game
                     if event.key == pygame.K_RETURN:
+                        # check to update high score
+                        if score > high_score:
+                            save_high_score(score)
                         reset_game() # resets game
 
         if game_state == GAME_STATE_RUNNING:
@@ -123,22 +149,35 @@ def main():
             for sprite in drawable:
                 sprite.draw(screen)
         
-            # display score
+            # display score and high score
             score_text = font.render(f"Score: {score}", True, (255, 255, 255))
             screen.blit(score_text, (10,10))
+            high_score_text = font_small.render(f"High Score: {high_score}", True, (150, 150, 150))
+            screen.blit(high_score_text, (10, 50)) # Position high score below current score
         
         elif game_state == GAME_STATE_GAME_OVER:
+            # check high score and update
+            if score > high_score:
+                high_score = score
+                save_high_score(high_score)
+        
+            
             game_over_text = font_large.render("GAME OVER!", True, (255, 0, 0)) # Red color
             text_rect = game_over_text.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 70))
             screen.blit(game_over_text, text_rect)
 
             # Display final score
-            final_score_text = font.render(f"Final Score: {score}", True, (255, 255, 255))
-            score_rect = final_score_text.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 10))
-            screen.blit(final_score_text, score_rect)
+            if high_score > score:
+                final_score_text = font.render(f"Final Score: {score}", True, (255, 255, 255))
+                score_rect = final_score_text.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 10))
+                screen.blit(final_score_text, score_rect)
+            elif high_score == score:
+                final_score_text = font.render(f"New High Score! {score}", True, (255, 255, 255))
+                score_rect = final_score_text.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 10))
+                screen.blit(final_score_text, score_rect)
 
             # Display instructions
-            instructions_text = font.render("Press ENTER to Retry or ESC to Quit", True, (0, 255, 0)) # Green color
+            instructions_text = font.render("Press ENTER to Retry or ESC to Quit", True, (0, 240, 0)) # Green color
             instructions_rect = instructions_text.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 90))
             screen.blit(instructions_text, instructions_rect)
 
