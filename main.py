@@ -3,6 +3,7 @@ from constants import *
 from player import *
 from asteroid import *
 from asteroidfield import *
+from shots import *
 
 def main():
     pygame.init()
@@ -20,7 +21,7 @@ def main():
     Player.containers = (updatable, drawable)
     Asteroid.containers = (asteroids, updatable, drawable)
     AsteroidField.containers = (updatable)
-    Shot.containers = (updatable, drawable)
+    Shot.containers = (updatable, drawable, shots)
     
     # fps and screen
     clock = pygame.time.Clock()
@@ -50,6 +51,12 @@ def main():
             if asteroid.collision(player) == True:
                 print("Game over!")
                 running = False
+                break
+            for shot in list(shots):
+                if asteroid.collision(shot):
+                    asteroid.kill()
+                    shot.kill()
+                    break
 
         # rendering
         screen.fill((000, 000, 000))
